@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="page">
+    <div class="container">
+        <div class="title-bar">
+            <div>
+                <h1>Welcome, {{ session.get('user_name') }}</h1>
+                <p class="private-note">LostLink dashboard</p>
+            </div>
+            <div class="btn-row">
+                <a class="btn btn-primary" href="{{ url_for('report_lost') }}">Report Lost Item</a>
+                <a class="btn btn-secondary" href="{{ url_for('report_found') }}">Report Found Item</a>
+                <a class="btn btn-warning" href="{{ url_for('found_items') }}">Browse Found Items</a>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="panel">
+                <h2>My Lost Items</h2>
+                {% if lost_items %}
+                    {% for item in lost_items %}
+                    <div class="item-tile">
+                        <h3>{{ item.item_name }}</h3>
+                        <p class="meta">Category: {{ item.category }}</p>
+                        <p class="meta">Description: {{ item.description }}</p>
+                        <span class="badge available">Available</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No lost items reported yet.</p>
+                {% endif %}
+            </div>
+
+            <div class="panel">
+                <h2>My Found Items</h2>
+                {% if found_items %}
+                    {% for item in found_items %}
+                    <div class="item-tile">
+                        <h3>{{ item.item_name }}</h3>
+                        <p class="meta">Location: {{ item.location }}</p>
+                        <p class="meta">Category: {{ item.category }}</p>
+                        <p class="meta">Status: {{ item.status }}</p>
+                        <span class="badge {% if item.status == 'Available' %}available{% elif item.status == 'Resolved' %}verified{% else %}pending{% endif %}">{{ item.status }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No found items reported yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="panel">
+                <h2>Potential Matches</h2>
+                {% if potential_matches %}
+                    {% for match in potential_matches %}
+                    <div class="item-tile">
+                        <h3>{{ match.item_name }}</h3>
+                        <p class="meta">Category: {{ match.category }}</p>
+                        <p class="meta">Location: {{ match.location }}</p>
+                        <span class="badge potential">Potential Match</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No potential matches yet.</p>
+                {% endif %}
+            </div>
+
+            <div class="panel">
+                <h2>My Claims</h2>
+                {% if my_claims %}
+                    {% for claim in my_claims %}
+                    <div class="item-tile">
+                        <h3>Claim: {{ claim.lost_item }} → {{ claim.found_item }}</h3>
+                        <p class="meta">Status: {{ claim.status }}</p>
+                        <span class="badge {% if claim.status == 'Pending' %}pending{% elif claim.status == 'Approved' %}approved{% elif claim.status == 'Rejected' %}rejected{% else %}verification{% endif %}">{{ claim.status }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No claims created yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

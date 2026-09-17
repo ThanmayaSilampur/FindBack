@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="page">
+    <div class="container">
+        <div class="form-wrap">
+            <h1>Login to LostLink</h1>
+            <form method="POST">
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group full">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-primary" type="submit">Login</button>
+                    <a class="btn btn-secondary" href="{{ url_for('register') }}">Create account</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

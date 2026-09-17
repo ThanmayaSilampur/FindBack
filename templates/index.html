@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="hero">
+    <div class="container hero-inner">
+        <div>
+            <span class="mini-title">LostLink</span>
+            <h1>Find what you lost.<br>Protect what you found.</h1>
+            <p>Your privacy matters.</p>
+            <div class="btn-row">
+                <a class="btn btn-warning" href="{{ url_for('report_lost') }}">Report Lost Item</a>
+                <a class="btn btn-primary" href="{{ url_for('report_found') }}">Report Found Item</a>
+                <a class="btn btn-secondary" href="{{ url_for('found_items') }}">Browse Found Items</a>
+            </div>
+        </div>
+        <div class="hero-card">
+            <div class="mini-title">How LostLink works</div>
+            <div class="effects">
+                <span class="badge verification">Private Upload</span>
+                <span class="badge verified">AI Match</span>
+                <span class="badge potential">Verification</span>
+            </div>
+            <p class="private-note">LostLink keeps private photos and verification answers away from public item listings.</p>
+        </div>
+    </div>
+</section>
+<section class="page">
+    <div class="container grid-3">
+        <div class="card">
+            <h3>1. Report</h3>
+            <p>Logged-in users can report a lost or found item quickly and safely.</p>
+        </div>
+        <div class="card">
+            <h3>2. Compare</h3>
+            <p>Lost photos can be compared to privately stored found photos using a local image similarity method.</p>
+        </div>
+        <div class="card">
+            <h3>3. Verify</h3>
+            <p>Ownership verification protects the privacy of the finder while helping reclaim items.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

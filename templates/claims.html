@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="page">
+    <div class="container">
+        <div class="grid">
+            <div class="panel">
+                <h1>My Claims</h1>
+                {% if my_claims %}
+                    {% for claim in my_claims %}
+                    <div class="item-tile">
+                        <h3>{{ claim.lost_item }} → {{ claim.found_item }}</h3>
+                        <p class="meta">Status: <span class="badge {% if claim.status == 'Pending' %}pending{% elif claim.status == 'Approved' %}approved{% elif claim.status == 'Rejected' %}rejected{% else %}verification{% endif %}">{{ claim.status }}</span></p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No claim created by you yet.</p>
+                {% endif %}
+            </div>
+
+            <div class="panel">
+                <h1>Claims for My Found Items</h1>
+                {% if finder_claims %}
+                    {% for claim in finder_claims %}
+                    <div class="item-tile">
+                        <h3>{{ claim.claimant_name }} claimed {{ claim.found_item }}</h3>
+                        <p class="meta">Lost item: {{ claim.lost_item }}</p>
+                        <p class="meta">Status: <span class="badge {% if claim.status == 'Pending' %}pending{% elif claim.status == 'Approved' %}approved{% elif claim.status == 'Rejected' %}rejected{% else %}verification{% endif %}">{{ claim.status }}</span></p>
+                        {% if claim.status == 'Pending' %}
+                        <form method="POST" action="{{ url_for('accept_claim', claim_id=claim.id) }}">
+                            <button class="btn btn-success" type="submit">Accept Claim</button>
+                        </form>
+                        <form method="POST" action="{{ url_for('reject_claim', claim_id=claim.id) }}">
+                            <button class="btn btn-danger" type="submit">Reject Claim</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No claims on your found items yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="page">
+    <div class="container">
+        <div class="title-bar">
+            <div>
+                <h1>Found Items</h1>
+                <p class="private-note">Public safe listing only. Private photos and verification details remain private.</p>
+            </div>
+            {% if session.get('user_id') %}
+            <a class="btn btn-primary" href="{{ url_for('report_found') }}">Report Found Item</a>
+            {% endif %}
+        </div>
+
+        {% if found_items %}
+        <div class="item-list">
+            {% for item in found_items %}
+            <div class="item-tile">
+                <div class="badge {% if item.status == 'Available' %}available{% else %}verified{% endif %}">{{ item.status }}</div>
+                <h3>{{ item.item_name }}</h3>
+                <p class="meta">Category: {{ item.category }}</p>
+                <p class="meta">Location: {{ item.location }}</p>
+                <p class="meta">Status: <span class="badge available">{{ item.status }}</span></p>
+                {% if session.get('user_id') %}
+                <div class="btn-row">
+                    <a class="btn btn-primary" href="{{ url_for('start_verification', found_id=item.id) }}">I Think This Is Mine</a>
+                </div>
+                {% else %}
+                <p><a class="btn btn-secondary" href="{{ url_for('login') }}">Login to verify ownership</a></p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="panel">
+            <p>No public found items available yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

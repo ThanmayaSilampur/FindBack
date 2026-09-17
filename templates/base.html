@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>LostLink</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a class="logo" href="{{ url_for('index') }}">Lost<span>Link</span></a>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+            <div class="nav-links" id="navLinks">
+                {% if session.get('user_id') %}
+                    <a class="{% if request.path == url_for('index') %}active{% endif %}" href="{{ url_for('index') }}">Home</a>
+                    <a class="{% if request.path == url_for('found_items') %}active{% endif %}" href="{{ url_for('found_items') }}">Found Items</a>
+                    <a class="{% if request.path == url_for('report_lost') %}active{% endif %}" href="{{ url_for('report_lost') }}">Report Lost</a>
+                    <a class="{% if request.path == url_for('report_found') %}active{% endif %}" href="{{ url_for('report_found') }}">Report Found</a>
+                    <a class="{% if request.path == url_for('dashboard') %}active{% endif %}" href="{{ url_for('dashboard') }}">Dashboard</a>
+                    <a href="{{ url_for('logout') }}">Logout</a>
+                {% else %}
+                    <a class="{% if request.path == url_for('index') %}active{% endif %}" href="{{ url_for('index') }}">Home</a>
+                    <a class="{% if request.path == url_for('found_items') %}active{% endif %}" href="{{ url_for('found_items') }}">Found Items</a>
+                    <a class="{% if request.path == url_for('login') %}active{% endif %}" href="{{ url_for('login') }}">Login</a>
+                    <a class="{% if request.path == url_for('register') %}active{% endif %}" href="{{ url_for('register') }}">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="container">
+                        <div class="alert alert-{% if category == 'error' %}error{% elif category == 'success' %}success{% else %}info{% endif %}">
+                            {{ message }}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>LostLink — private lost and found matching.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

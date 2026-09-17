@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="page">
+    <div class="container">
+        <div class="form-wrap">
+            <h1>✅ Ownership Verified</h1>
+            <p>Your answers match the private information.</p>
+            <p class="private-note">You may now proceed with the claim.</p>
+            <form method="POST" action="{{ url_for('create_claim', found_id=found_item.id, lost_id=lost_item.id) }}">
+                <div class="btn-row">
+                    <button class="btn btn-success" type="submit">Proceed With Claim</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

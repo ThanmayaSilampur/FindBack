@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="page">
+    <div class="container">
+        <h1>Potential Matches</h1>
+        {% if matches %}
+        <div class="item-list">
+            {% for match in matches %}
+            <div class="item-tile">
+                <span class="badge potential">Potential Match Found</span>
+                <h3>{{ match.found_item_name }}</h3>
+                <p class="meta">Category: {{ match.category }}</p>
+                <p class="meta">Location: {{ match.location }}</p>
+                <p class="meta">Status: {{ match.status }}</p>
+                <div class="btn-row">
+                    <a class="btn btn-primary" href="{{ url_for('verify', found_id=match.found_item_id, lost_id=match.lost_item_id) }}">Verify Ownership</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="panel">
+            <p>No potential matches found yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

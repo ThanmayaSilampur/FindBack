@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="page">
+    <div class="container">
+        <div class="form-wrap">
+            <h1>Ownership Verification</h1>
+            {% if failed and not exhausted %}
+                <div class="alert alert-error">❌ Ownership Verification Failed<br>Your answers did not match enough of the private information.<br>Attempts remaining: {{ 3 - attempts }}</div>
+            {% endif %}
+            {% if exhausted %}
+                <div class="alert alert-error">❌ Ownership Verification Failed<br>Verification attempts exhausted.</div>
+            {% endif %}
+
+            <p class="private-note">Verify ownership privately. Do not reveal expected answers.</p>
+
+            <form method="POST">
+                <div class="form-group">
+                    <label>Q1. {{ questions[0].question }}</label>
+                    <input type="text" name="q1" value="" required>
+                </div>
+                <div class="form-group">
+                    <label>Q2. {{ questions[1].question }}</label>
+                    <input type="text" name="q2" value="" required>
+                </div>
+                <div class="form-group">
+                    <label>Q3. {{ questions[2].question }}</label>
+                    <input type="text" name="q3" value="" required>
+                </div>
+
+                {% if attempts >= 3 %}
+                <div class="btn-row">
+                    <a class="btn btn-secondary" href="{{ url_for('found_items') }}">Browse Found Items</a>
+                </div>
+                {% else %}
+                <div class="btn-row">
+                    <button class="btn btn-primary" type="submit">Verify Ownership</button>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}
