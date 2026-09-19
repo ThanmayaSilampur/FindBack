@@ -26,12 +26,16 @@
                         <p class="meta">Lost item: {{ claim.lost_item }}</p>
                         <p class="meta">Status: <span class="badge {% if claim.status == 'Pending' %}pending{% elif claim.status == 'Approved' %}approved{% elif claim.status == 'Rejected' %}rejected{% else %}verification{% endif %}">{{ claim.status }}</span></p>
                         {% if claim.status == 'Pending' %}
-                        <form method="POST" action="{{ url_for('accept_claim', claim_id=claim.id) }}">
-                            <button class="btn btn-success" type="submit">Accept Claim</button>
-                        </form>
-                        <form method="POST" action="{{ url_for('reject_claim', claim_id=claim.id) }}">
-                            <button class="btn btn-danger" type="submit">Reject Claim</button>
-                        </form>
+                        <div class="btn-row" style="margin-top: 12px;">
+                            <form method="POST" action="{{ url_for('accept_claim', claim_id=claim.id) }}" style="display:inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button class="btn btn-success" type="submit">Accept Claim</button>
+                            </form>
+                            <form method="POST" action="{{ url_for('reject_claim', claim_id=claim.id) }}" style="display:inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button class="btn btn-danger" type="submit">Reject Claim</button>
+                            </form>
+                        </div>
                         {% endif %}
                     </div>
                     {% endfor %}

@@ -2,84 +2,233 @@
 {% block content %}
 <section class="page">
     <div class="container">
-        <div class="title-bar">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
             <div>
                 <h1>Welcome, {{ session.get('user_name') }}</h1>
-                <p class="private-note">LostLink dashboard</p>
+                <p class="private-note">FindBack Dashboard — Manage your reports, matches, and ownership claims</p>
             </div>
             <div class="btn-row">
-                <a class="btn btn-primary" href="{{ url_for('report_lost') }}">Report Lost Item</a>
-                <a class="btn btn-secondary" href="{{ url_for('report_found') }}">Report Found Item</a>
+                <a class="btn btn-primary" href="{{ url_for('report_lost') }}">+ Report Lost Item</a>
+                <a class="btn btn-secondary" href="{{ url_for('report_found') }}">+ Report Found Item</a>
                 <a class="btn btn-warning" href="{{ url_for('found_items') }}">Browse Found Items</a>
             </div>
         </div>
 
-        <div class="grid">
+        <!-- Metric Stat Cards -->
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <div class="stat-number">{{ lost_items|length }}</div>
+                <div class="stat-label">Lost Reports</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ found_items|length }}</div>
+                <div class="stat-label">Found Reports</div>
+            </div>
+            <div class="stat-card {% if potential_matches %}highlight{% endif %}">
+                <div class="stat-number">{{ potential_matches|length }}</div>
+                <div class="stat-label">Potential Matches</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ my_claims|length }}</div>
+                <div class="stat-label">Claims Filed</div>
+            </div>
+        </div>
+
+        <!-- Match Alert Banner -->
+        {% if potential_matches %}
+        <div class="match-alert-banner">
+            <div>
+                <strong>🔔 Potential Matches Detected:</strong>
+                <span>We found {{ potential_matches|length }} potential item match{{ 'es' if potential_matches|length > 1 else '' }} matching your reported lost items.</span>
+            </div>
+            <a href="#matches-section" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;">Review Matches</a>
+        </div>
+        {% endif %}
+
+        <!-- Section: Potential Matches -->
+        <div id="matches-section" style="margin-top: 30px;">
+            <div class="title-bar">
+                <div>
+                    <h2>Potential Matches <span class="badge potential">{{ potential_matches|length }}</span></h2>
+                    <p class="private-note">Automated similarity suggestions based on category, description, and photo data. Does not guarantee ownership.</p>
+                </div>
+            </div>
+
+            {% if potential_matches %}
+            <div class="item-list">
+                {% for match in potential_matches %}
+                <div class="item-tile">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                        <span class="badge potential">Match Score: {{ (match.similarity_score * 100)|round|int }}%</span>
+                        <span class="badge verification">{{ match.category }}</span>
+                    </div>
+                    <h3 style="margin: 8px 0 6px;">{{ match.item_name }}</h3>
+                    <p class="meta" style="margin-bottom: 4px;">📍 <strong>Found Location:</strong> {{ match.location }}</p>
+
+                    {% if match.match_reasons %}
+                    <div class="effects" style="margin: 10px 0;">
+                        {% for r in match.match_reasons.split(',') %}
+                            {% if r.strip() %}
+                            <span class="badge verification">✓ {{ r.strip() }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <p class="private-note" style="margin: 8px 0 12px; font-size: 0.8rem;">
+                        Algorithmic similarity suggestion — requires security verification.
+                    </p>
+
+                    <div class="btn-row" style="margin-top: auto;">
+                        <a class="btn btn-primary" href="{{ url_for('verify', found_id=match.found_item_id, lost_id=match.lost_item_id) }}" style="flex: 1;">
+                            Verify Ownership
+                        </a>
+                        <a class="btn btn-secondary" href="{{ url_for('item_detail', item_id=match.found_item_id) }}" style="min-width: 100px;">
+                            View Item
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="panel empty-state">
+                <div style="font-size: 2rem; margin-bottom: 8px;">🤝</div>
+                <h3>No potential matches yet</h3>
+                <p class="meta">As new lost and found items are reported, our multi-signal engine will automatically suggest matching candidates here.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Section: Lost and Found Items Grid -->
+        <div class="grid" style="margin-top: 36px;">
+            <!-- My Lost Items -->
             <div class="panel">
-                <h2>My Lost Items</h2>
+                <div class="title-bar" style="margin-bottom: 14px;">
+                    <div>
+                        <h2 style="margin: 0;">My Lost Items <span class="badge verification">{{ lost_items|length }}</span></h2>
+                    </div>
+                    <a class="btn btn-secondary" href="{{ url_for('report_lost') }}" style="min-width: unset; padding: 6px 14px; font-size: 0.85rem;">+ Add</a>
+                </div>
+
                 {% if lost_items %}
+                    <div style="display: flex; flex-direction: column; gap: 14px;">
                     {% for item in lost_items %}
-                    <div class="item-tile">
-                        <h3>{{ item.item_name }}</h3>
-                        <p class="meta">Category: {{ item.category }}</p>
-                        <p class="meta">Description: {{ item.description }}</p>
-                        <span class="badge available">Available</span>
+                    <div class="item-tile" style="box-shadow: none; border: 1px solid var(--line);">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <h3 style="margin: 0 0 6px;">{{ item.item_name }}</h3>
+                            <span class="badge available">Active</span>
+                        </div>
+                        <p class="meta" style="margin-bottom: 2px;">Category: <strong>{{ item.category }}</strong></p>
+                        {% if item.location %}
+                        <p class="meta" style="margin-bottom: 2px;">Location: {{ item.location }}</p>
+                        {% endif %}
+                        <p class="meta" style="margin-bottom: 8px; font-size: 0.88rem; color: var(--muted);">{{ item.description }}</p>
+                        <div class="btn-row" style="margin-top: 8px;">
+                            <a class="btn btn-warning" href="{{ url_for('found_items', q=item.item_name) }}" style="padding: 6px 12px; font-size: 0.85rem; min-width: unset;">
+                                Search Found Items
+                            </a>
+                        </div>
                     </div>
                     {% endfor %}
+                    </div>
                 {% else %}
-                    <p>No lost items reported yet.</p>
+                    <div class="empty-state" style="padding: 20px 0;">
+                        <p class="meta">You haven't reported any lost items yet.</p>
+                        <a class="btn btn-primary" href="{{ url_for('report_lost') }}" style="margin-top: 8px;">Report Lost Item</a>
+                    </div>
                 {% endif %}
             </div>
 
+            <!-- My Found Items -->
             <div class="panel">
-                <h2>My Found Items</h2>
+                <div class="title-bar" style="margin-bottom: 14px;">
+                    <div>
+                        <h2 style="margin: 0;">My Found Items <span class="badge verification">{{ found_items|length }}</span></h2>
+                    </div>
+                    <a class="btn btn-secondary" href="{{ url_for('report_found') }}" style="min-width: unset; padding: 6px 14px; font-size: 0.85rem;">+ Add</a>
+                </div>
+
                 {% if found_items %}
+                    <div style="display: flex; flex-direction: column; gap: 14px;">
                     {% for item in found_items %}
-                    <div class="item-tile">
-                        <h3>{{ item.item_name }}</h3>
-                        <p class="meta">Location: {{ item.location }}</p>
-                        <p class="meta">Category: {{ item.category }}</p>
-                        <p class="meta">Status: {{ item.status }}</p>
-                        <span class="badge {% if item.status == 'Available' %}available{% elif item.status == 'Resolved' %}verified{% else %}pending{% endif %}">{{ item.status }}</span>
+                    <div class="item-tile" style="box-shadow: none; border: 1px solid var(--line);">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <h3 style="margin: 0 0 6px;">{{ item.item_name }}</h3>
+                            <span class="badge {% if item.status == 'Available' %}available{% elif item.status == 'Resolved' %}verified{% else %}pending{% endif %}">
+                                {{ item.status }}
+                            </span>
+                        </div>
+                        <p class="meta" style="margin-bottom: 2px;">Category: <strong>{{ item.category }}</strong></p>
+                        <p class="meta" style="margin-bottom: 6px;">Location: {{ item.location }}</p>
+                        <div class="btn-row" style="margin-top: 10px;">
+                            <a class="btn btn-secondary" href="{{ url_for('item_detail', item_id=item.id) }}" style="padding: 6px 12px; font-size: 0.85rem; min-width: unset;">
+                                Public Page
+                            </a>
+                            {% if item.image_path %}
+                            <a class="btn btn-warning" href="{{ url_for('serve_item_image', item_type='found', item_id=item.id) }}" target="_blank" style="padding: 6px 12px; font-size: 0.85rem; min-width: unset;">
+                                View Photo
+                            </a>
+                            {% endif %}
+                        </div>
                     </div>
                     {% endfor %}
+                    </div>
                 {% else %}
-                    <p>No found items reported yet.</p>
+                    <div class="empty-state" style="padding: 20px 0;">
+                        <p class="meta">You haven't reported finding any items.</p>
+                        <a class="btn btn-primary" href="{{ url_for('report_found') }}" style="margin-top: 8px;">Report Found Item</a>
+                    </div>
                 {% endif %}
             </div>
         </div>
 
-        <div class="grid">
-            <div class="panel">
-                <h2>Potential Matches</h2>
-                {% if potential_matches %}
-                    {% for match in potential_matches %}
-                    <div class="item-tile">
-                        <h3>{{ match.item_name }}</h3>
-                        <p class="meta">Category: {{ match.category }}</p>
-                        <p class="meta">Location: {{ match.location }}</p>
-                        <span class="badge potential">Potential Match</span>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <p>No potential matches yet.</p>
-                {% endif %}
+        <!-- Section: Claims -->
+        <div class="panel" style="margin-top: 36px;">
+            <div class="title-bar" style="margin-bottom: 14px;">
+                <div>
+                    <h2 style="margin: 0;">My Claims & Verification Status <span class="badge verification">{{ my_claims|length }}</span></h2>
+                    <p class="private-note">Track the status of items you have verified ownership for</p>
+                </div>
+                <a class="btn btn-secondary" href="{{ url_for('claims') }}" style="min-width: unset; padding: 6px 14px; font-size: 0.85rem;">All Claims</a>
             </div>
 
-            <div class="panel">
-                <h2>My Claims</h2>
-                {% if my_claims %}
-                    {% for claim in my_claims %}
-                    <div class="item-tile">
-                        <h3>Claim: {{ claim.lost_item }} → {{ claim.found_item }}</h3>
-                        <p class="meta">Status: {{ claim.status }}</p>
-                        <span class="badge {% if claim.status == 'Pending' %}pending{% elif claim.status == 'Approved' %}approved{% elif claim.status == 'Rejected' %}rejected{% else %}verification{% endif %}">{{ claim.status }}</span>
+            {% if my_claims %}
+            <div class="item-list">
+                {% for claim in my_claims %}
+                <div class="item-tile" style="box-shadow: none; border: 1px solid var(--line);">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                        <span class="badge {% if claim.status == 'Pending' %}pending{% elif claim.status == 'Approved' %}approved{% elif claim.status == 'Rejected' %}rejected{% else %}verification{% endif %}">
+                            {{ claim.status }}
+                        </span>
+                        <span class="meta" style="font-size: 0.8rem;">Claim #{{ claim.id }}</span>
                     </div>
-                    {% endfor %}
-                {% else %}
-                    <p>No claims created yet.</p>
-                {% endif %}
+                    <h3 style="margin: 6px 0 8px;">Claim for: {{ claim.found_item }}</h3>
+                    <p class="meta" style="margin-bottom: 4px;">Associated Report: {{ claim.lost_item }}</p>
+                    {% if claim.status == 'Approved' %}
+                    <div style="margin-top: 10px;">
+                        <a class="btn btn-success" href="{{ url_for('verification_success', found_id=claim.found_item_id) }}" style="padding: 8px 14px; font-size: 0.9rem;">
+                            View Success & Contact Details
+                        </a>
+                    </div>
+                    {% elif claim.status == 'Pending' %}
+                    <p class="meta" style="color: var(--warning); margin-top: 8px; font-size: 0.88rem;">
+                        ⏳ Awaiting confirmation from the item finder.
+                    </p>
+                    {% elif claim.status == 'Rejected' %}
+                    <p class="meta" style="color: var(--danger); margin-top: 8px; font-size: 0.88rem;">
+                        ❌ This claim was not approved.
+                    </p>
+                    {% endif %}
+                </div>
+                {% endfor %}
             </div>
+            {% else %}
+            <div class="empty-state" style="padding: 20px 0;">
+                <p class="meta">No claims initiated yet.</p>
+                <p class="private-note">Browse found items and complete ownership verification to submit a claim.</p>
+            </div>
+            {% endif %}
         </div>
     </div>
 </section>

@@ -6,6 +6,7 @@
             <h1>Report Found Item</h1>
             <p class="private-note">Private photo and verification answers will be kept private. They are not shown on the public found-items list.</p>
             <form method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="item_name">Item Name</label>
@@ -37,33 +38,34 @@
 
                     <div class="form-group full">
                         <h3>Private Verification Questions</h3>
+                        <p class="private-note">Ask 3 specific questions only the true owner would know to prove ownership.</p>
                     </div>
 
                     <div class="form-group">
                         <label for="question1">Question 1</label>
-                        <input type="text" id="question1" name="question1" value="What is attached to the backpack?" required>
+                        <input type="text" id="question1" name="question1" placeholder="e.g. What color is the keychain?" required>
                     </div>
                     <div class="form-group">
                         <label for="answer1">Answer 1</label>
-                        <input type="text" id="answer1" name="answer1" value="Red keychain" required>
+                        <input type="text" id="answer1" name="answer1" placeholder="Expected answer" required>
                     </div>
 
                     <div class="form-group">
                         <label for="question2">Question 2</label>
-                        <input type="text" id="question2" name="question2" value="What sticker is inside the backpack?" required>
+                        <input type="text" id="question2" name="question2" placeholder="e.g. What brand/sticker is on it?" required>
                     </div>
                     <div class="form-group">
                         <label for="answer2">Answer 2</label>
-                        <input type="text" id="answer2" name="answer2" value="Superman" required>
+                        <input type="text" id="answer2" name="answer2" placeholder="Expected answer" required>
                     </div>
 
                     <div class="form-group">
                         <label for="question3">Question 3</label>
-                        <input type="text" id="question3" name="question3" value="Where is the scratch?" required>
+                        <input type="text" id="question3" name="question3" placeholder="e.g. Any specific distinguishing marks or contents?" required>
                     </div>
                     <div class="form-group">
                         <label for="answer3">Answer 3</label>
-                        <input type="text" id="answer3" name="answer3" value="Left side" required>
+                        <input type="text" id="answer3" name="answer3" placeholder="Expected answer" required>
                     </div>
                 </div>
                 <div class="btn-row">

@@ -2,17 +2,32 @@
 {% block content %}
 <section class="page">
     <div class="container">
-        <h1>Potential Matches</h1>
+        <div class="title-bar">
+            <div>
+                <h1>Potential Matches</h1>
+                <p class="private-note">Potential matches are automated suggestions based on reported details and similarity signals. They do not guarantee ownership.</p>
+            </div>
+        </div>
         {% if matches %}
         <div class="item-list">
             {% for match in matches %}
             <div class="item-tile">
-                <span class="badge potential">Potential Match Found</span>
+                <span class="badge potential">Potential Match</span>
                 <h3>{{ match.found_item_name }}</h3>
                 <p class="meta">Category: {{ match.category }}</p>
                 <p class="meta">Location: {{ match.location }}</p>
-                <p class="meta">Status: {{ match.status }}</p>
-                <div class="btn-row">
+
+                {% if match.match_reasons %}
+                <div class="effects" style="margin: 10px 0;">
+                    {% for reason in match.match_reasons.split(',') %}
+                        {% if reason.strip() %}
+                        <span class="badge verification">✓ {{ reason.strip() }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="btn-row" style="margin-top: 14px;">
                     <a class="btn btn-primary" href="{{ url_for('verify', found_id=match.found_item_id, lost_id=match.lost_item_id) }}">Verify Ownership</a>
                 </div>
             </div>

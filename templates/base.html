@@ -3,13 +3,13 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>LostLink</title>
+    <title>FindBack — Privacy-Focused Lost &amp; Found</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <nav class="navbar">
         <div class="container">
-            <a class="logo" href="{{ url_for('index') }}">Lost<span>Link</span></a>
+            <a class="logo" href="{{ url_for('index') }}">Find<span>Back</span></a>
             <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
             <div class="nav-links" id="navLinks">
                 {% if session.get('user_id') %}
@@ -46,7 +46,7 @@
 
     <footer class="footer">
         <div class="container">
-            <p>LostLink — private lost and found matching.</p>
+            <p>FindBack — privacy-focused lost &amp; found matching.</p>
         </div>
     </footer>
 

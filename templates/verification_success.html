@@ -5,8 +5,9 @@
         <div class="form-wrap">
             <h1>✅ Ownership Verified</h1>
             <p>Your answers match the private information.</p>
-            <p class="private-note">You may now proceed with the claim.</p>
-            <form method="POST" action="{{ url_for('create_claim', found_id=found_item.id, lost_id=lost_item.id) }}">
+            <p class="private-note">You may now proceed with the claim for {{ found_item.item_name }}.</p>
+            <form method="POST" action="{{ url_for('create_claim', found_id=found_item.id, lost_id=lost_item.id if lost_item else 0) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="btn-row">
                     <button class="btn btn-success" type="submit">Proceed With Claim</button>
                 </div>

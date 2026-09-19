@@ -3,8 +3,9 @@
 <section class="page">
     <div class="container">
         <div class="form-wrap">
-            <h1>Login to LostLink</h1>
+            <h1>Login to FindBack</h1>
             <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="form-grid">
                     <div class="form-group full">
                         <label for="email">Email</label>

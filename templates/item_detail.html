@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="page">
+    <div class="container">
+        <div style="margin-bottom: 20px;">
+            <a href="{{ url_for('found_items') }}" style="color: var(--primary); text-decoration: none; font-weight: 700;">&larr; Back to Found Items</a>
+        </div>
+
+        <div class="detail-card">
+            <div class="detail-header">
+                <div>
+                    <span class="badge {% if item.status == 'Available' %}available{% elif item.status == 'Resolved' %}verified{% else %}pending{% endif %}">
+                        {{ item.status }}
+                    </span>
+                    <h1 style="margin: 8px 0 4px;">{{ item.item_name }}</h1>
+                    <p class="meta">Category: <strong>{{ item.category }}</strong></p>
+                </div>
+                <div>
+                    {% if session.get('user_id') %}
+                        {% if is_finder %}
+                            <span class="badge verification">You Reported This Item</span>
+                        {% elif user_claim %}
+                            <span class="badge {% if user_claim.status == 'Approved' %}approved{% elif user_claim.status == 'Pending' %}pending{% else %}rejected{% endif %}">
+                                Claim Status: {{ user_claim.status }}
+                            </span>
+                        {% else %}
+                            <a class="btn btn-primary" href="{{ url_for('start_verification', found_id=item.id) }}">I Think This Is Mine</a>
+                        {% endif %}
+                    {% else %}
+                        <a class="btn btn-primary" href="{{ url_for('login') }}">Login to Claim</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--line); margin: 20px 0;">
+
+            <div class="detail-meta-grid">
+                <div class="detail-meta-item">
+                    <span class="meta-label">Location Found</span>
+                    <span class="meta-value">{{ item.location }}</span>
+                </div>
+                <div class="detail-meta-item">
+                    <span class="meta-label">Date Reported</span>
+                    <span class="meta-value">{{ item.created_at }}</span>
+                </div>
+                <div class="detail-meta-item">
+                    <span class="meta-label">Verification Questions</span>
+                    <span class="meta-value">{{ question_count }} required for claim</span>
+                </div>
+                <div class="detail-meta-item">
+                    <span class="meta-label">Current Status</span>
+                    <span class="meta-value">{{ item.status }}</span>
+                </div>
+            </div>
+
+            <div style="margin-top: 24px;">
+                <h3>Item Description</h3>
+                <div class="panel" style="background: #fafefe; border: 1px solid var(--line); padding: 18px;">
+                    <p style="margin: 0; white-space: pre-line;">{{ item.description if item.description else 'No additional public description provided.' }}</p>
+                </div>
+            </div>
+
+            <div class="privacy-banner" style="margin-top: 24px;">
+                <div style="font-weight: 700; color: var(--primary-dark); margin-bottom: 6px;">
+                    🔒 Privacy & Anti-Theft Protection
+                </div>
+                <p class="private-note" style="margin: 0; line-height: 1.5;">
+                    To protect true owners and prevent fraudulent claims, private photos and security verification answers are kept hidden.
+                    FindBack requires claimants to pass verification questions set by the finder before releasing contact information.
+                </p>
+            </div>
+
+            {% if is_finder %}
+            <div style="margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line);">
+                <h3>Finder Management</h3>
+                <p class="meta">As the person who reported finding this item, you can review claims and view the secure photo.</p>
+                <div class="btn-row">
+                    {% if item.image_path %}
+                    <a class="btn btn-secondary" href="{{ url_for('serve_item_image', item_type='found', item_id=item.id) }}" target="_blank">View Stored Photo</a>
+                    {% endif %}
+                    <a class="btn btn-warning" href="{{ url_for('claims') }}">Review Incoming Claims</a>
+                </div>
+            </div>
+            {% elif session.get('user_id') %}
+            <div style="margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line);">
+                {% if user_claim %}
+                    {% if user_claim.status == 'Approved' %}
+                        <div class="alert alert-success">
+                            <strong>Your claim has been approved!</strong> You can coordinate item return with the finder.
+                        </div>
+                    {% elif user_claim.status == 'Pending' %}
+                        <div class="alert alert-info">
+                            <strong>Claim Pending Review:</strong> Your ownership verification was submitted and is awaiting confirmation from the finder.
+                        </div>
+                    {% elif user_claim.status == 'Rejected' %}
+                        <div class="alert alert-error">
+                            <strong>Claim Not Approved:</strong> The verification attempt or claim could not be validated.
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <h3>Think this item is yours?</h3>
+                    <p class="meta">You can verify your ownership by answering security questions known only to the true owner.</p>
+                    <div class="btn-row">
+                        <a class="btn btn-primary" href="{{ url_for('start_verification', found_id=item.id) }}">Start Ownership Verification</a>
+                    </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

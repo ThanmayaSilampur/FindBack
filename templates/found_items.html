@@ -1,39 +1,116 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% block content %}
 <section class="page">
     <div class="container">
         <div class="title-bar">
             <div>
-                <h1>Found Items</h1>
-                <p class="private-note">Public safe listing only. Private photos and verification details remain private.</p>
+                <h1>Browse Found Items</h1>
+                <p class="private-note">Safe public listings. Private photos and verification answers are kept hidden.</p>
             </div>
             {% if session.get('user_id') %}
-            <a class="btn btn-primary" href="{{ url_for('report_found') }}">Report Found Item</a>
+            <a class="btn btn-primary" href="{{ url_for('report_found') }}">+ Report Found Item</a>
             {% endif %}
+        </div>
+
+        <!-- Search and Filter Bar -->
+        <div class="filter-card">
+            <form method="GET" action="{{ url_for('found_items') }}" class="filter-form">
+                <div class="filter-grid">
+                    <div class="form-group">
+                        <label for="q">Keyword Search</label>
+                        <input type="text" id="q" name="q" value="{{ query }}" placeholder="Search by name or description...">
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" name="category">
+                            <option value="">All Categories</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input type="text" id="location" name="location" value="{{ selected_location }}" placeholder="e.g. Library, Park, Bus...">
+                    </div>
+                    <div class="form-group">
+                        <label for="date_from">Date From</label>
+                        <input type="date" id="date_from" name="date_from" value="{{ date_from }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="date_to">Date To</label>
+                        <input type="date" id="date_to" name="date_to" value="{{ date_to }}">
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-primary">Filter Items</button>
+                    {% if filters_active %}
+                    <a href="{{ url_for('found_items') }}" class="btn btn-secondary">Clear Filters</a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+
+        <div class="results-header" style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0 14px;">
+            <p class="meta" style="margin: 0; font-weight: 700;">
+                Showing {{ total_count }} found item{{ 's' if total_count != 1 else '' }}
+                {% if filters_active %}
+                <span class="badge verification" style="margin-left: 8px;">Filtered</span>
+                {% endif %}
+            </p>
         </div>
 
         {% if found_items %}
         <div class="item-list">
             {% for item in found_items %}
             <div class="item-tile">
-                <div class="badge {% if item.status == 'Available' %}available{% else %}verified{% endif %}">{{ item.status }}</div>
-                <h3>{{ item.item_name }}</h3>
-                <p class="meta">Category: {{ item.category }}</p>
-                <p class="meta">Location: {{ item.location }}</p>
-                <p class="meta">Status: <span class="badge available">{{ item.status }}</span></p>
-                {% if session.get('user_id') %}
-                <div class="btn-row">
-                    <a class="btn btn-primary" href="{{ url_for('start_verification', found_id=item.id) }}">I Think This Is Mine</a>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                    <span class="badge verification">{{ item.category }}</span>
+                    <span class="badge {% if item.status == 'Available' %}available{% elif item.status == 'Resolved' %}verified{% else %}pending{% endif %}">
+                        {{ item.status }}
+                    </span>
                 </div>
-                {% else %}
-                <p><a class="btn btn-secondary" href="{{ url_for('login') }}">Login to verify ownership</a></p>
+                <h3 style="margin: 6px 0 8px;">
+                    <a href="{{ url_for('item_detail', item_id=item.id) }}" style="color: var(--text); text-decoration: none;">
+                        {{ item.item_name }}
+                    </a>
+                </h3>
+                <p class="meta" style="margin-bottom: 4px;">📍 <strong>Location:</strong> {{ item.location }}</p>
+                <p class="meta" style="margin-bottom: 8px;">📅 <strong>Reported:</strong> {{ item.created_at }}</p>
+                {% if item.description %}
+                <p class="meta" style="color: var(--muted); margin-bottom: 14px; font-size: 0.9rem;">
+                    {{ item.description[:100] }}{% if item.description|length > 100 %}...{% endif %}
+                </p>
                 {% endif %}
+                <div class="btn-row" style="margin-top: auto; padding-top: 10px;">
+                    <a class="btn btn-secondary" href="{{ url_for('item_detail', item_id=item.id) }}" style="flex: 1; min-width: 120px;">Details</a>
+                    {% if session.get('user_id') %}
+                    <a class="btn btn-primary" href="{{ url_for('start_verification', found_id=item.id) }}" style="flex: 1; min-width: 140px;">This Is Mine</a>
+                    {% else %}
+                    <a class="btn btn-primary" href="{{ url_for('login') }}" style="flex: 1; min-width: 140px;">Login to Claim</a>
+                    {% endif %}
+                </div>
             </div>
             {% endfor %}
         </div>
         {% else %}
-        <div class="panel">
-            <p>No public found items available yet.</p>
+        <div class="empty-state panel">
+            <div style="font-size: 2.5rem; margin-bottom: 10px;">🔍</div>
+            {% if filters_active %}
+            <h3>No items matched your filters</h3>
+            <p class="meta">Try adjusting your keyword or clearing filters to see all reported items.</p>
+            <div style="margin-top: 14px;">
+                <a class="btn btn-primary" href="{{ url_for('found_items') }}">Reset All Filters</a>
+            </div>
+            {% else %}
+            <h3>No found items reported yet</h3>
+            <p class="meta">When someone reports finding an item, it will be listed here.</p>
+            {% if session.get('user_id') %}
+            <div style="margin-top: 14px;">
+                <a class="btn btn-primary" href="{{ url_for('report_found') }}">Report a Found Item</a>
+            </div>
+            {% endif %}
+            {% endif %}
         </div>
         {% endif %}
     </div>

@@ -14,18 +14,13 @@
             <p class="private-note">Verify ownership privately. Do not reveal expected answers.</p>
 
             <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                {% for q in questions %}
                 <div class="form-group">
-                    <label>Q1. {{ questions[0].question }}</label>
-                    <input type="text" name="q1" value="" required>
+                    <label>Q{{ loop.index }}. {{ q.question }}</label>
+                    <input type="text" name="q{{ loop.index }}" value="" required>
                 </div>
-                <div class="form-group">
-                    <label>Q2. {{ questions[1].question }}</label>
-                    <input type="text" name="q2" value="" required>
-                </div>
-                <div class="form-group">
-                    <label>Q3. {{ questions[2].question }}</label>
-                    <input type="text" name="q3" value="" required>
-                </div>
+                {% endfor %}
 
                 {% if attempts >= 3 %}
                 <div class="btn-row">
